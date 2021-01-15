@@ -77,17 +77,6 @@ contract ERC998ERC721TopDown is IERC721, ERC165, IERC998ERC721TopDown, IERC998ER
             (rootOwnerAddress, _childTokenId) = _ownerOfChild(rootOwnerAddress, _childTokenId);
         }
 
-        // NOTE: update from solidity v0.4 to v0.6
-        // bool callSuccess;
-        // bytes memory callData;
-        // // 0xed81cdda == rootOwnerOfChild(address,uint256)
-        // callData = abi.encodeWithSelector(0xed81cdda, address(this), _childTokenId);
-        // assembly {
-        //     callSuccess := staticcall(gas, rootOwnerAddress, add(callData, 0x20), mload(callData), callData, 0x20)
-        //     if callSuccess {
-        //         rootOwner := mload(callData)
-        //     }
-        // }
         (bool callSuccess, bytes memory data) = rootOwnerAddress.staticcall(abi.encodeWithSelector(0xed81cdda, address(this), _childTokenId));
         if (data.length != 0) {
             rootOwner = abi.decode(data, (bytes32));
@@ -151,17 +140,6 @@ contract ERC998ERC721TopDown is IERC721, ERC165, IERC998ERC721TopDown, IERC998ER
         require(_to != address(0));
 
         if(msg.sender != _from) {
-            // NOTE: update from solidity v0.4 to v0.6
-            // bytes32 rootOwner;
-            // bool callSuccess;
-            // // 0xed81cdda == rootOwnerOfChild(address,uint256)
-            // bytes memory calldata = abi.encodeWithSelector(0xed81cdda, address(this), _tokenId);
-            // assembly {
-            //     callSuccess := staticcall(gas, _from, add(calldata, 0x20), mload(calldata), calldata, 0x20)
-            //     if callSuccess {
-            //         rootOwner := mload(calldata)
-            //     }
-            // }
             (bool callSuccess, bytes memory data) = _from.staticcall(abi.encodeWithSelector(0xed81cdda, address(this), _tokenId));
             bytes32 rootOwner = abi.decode(data, (bytes32));
 
@@ -302,11 +280,6 @@ contract ERC998ERC721TopDown is IERC721, ERC165, IERC998ERC721TopDown, IERC998ER
         //does not work with current standard which does not allow approving self, so we must let it fail in that case.
         //0x095ea7b3 == "approve(address,uint256)"
 
-        // NOTE: update from solidity v0.4 to v0.6
-        // bytes memory calldata = abi.encodeWithSelector(0x095ea7b3, this, _childTokenId);
-        // assembly {
-        //     let success := call(gas, _childContract, 0, add(calldata, 0x20), mload(calldata), calldata, 0)
-        // }
         (bool success, bytes memory data) = _childContract.call(abi.encodeWithSelector(0x095ea7b3, this, _childTokenId));
         require(
             success && (data.length == 0 || abi.decode(data, (bool))),
